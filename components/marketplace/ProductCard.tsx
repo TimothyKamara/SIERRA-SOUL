@@ -20,7 +20,6 @@ interface ProductCardProps {
     location: string
     category: string
     inStock: boolean
-    reviews: number
   }
   viewMode: "grid" | "list"
 }
@@ -59,27 +58,26 @@ export default function ProductCard({ product, viewMode }: ProductCardProps) {
             </div>
 
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-gray-900 truncate mb-1">{product.name}</h3>
-              <p className="text-lg font-bold text-amber-600 mb-2">${product.price.toLocaleString()}</p>
+              <h3 className="font-semibold text-gray-900 truncate">{product.name}</h3>
+              <p className="text-lg font-bold text-amber-600 mt-1">${product.price}</p>
 
-              <div className="flex items-center justify-between mb-2 text-sm text-gray-600">
+              <div className="flex items-center space-x-2 mt-2 text-sm text-gray-600">
                 <div className="flex items-center">
                   <Star size={14} className="text-yellow-400 fill-current" />
                   <span className="ml-1">{product.seller.rating}</span>
-                  <span className="ml-1 text-gray-400">({product.reviews || 0})</span>
                 </div>
-                <span className="truncate ml-2 max-w-[100px]">{product.seller.name}</span>
+                <span>•</span>
+                <span>{product.seller.name}</span>
               </div>
 
-              <div className="flex items-center mb-2 text-sm text-gray-500">
+              <div className="flex items-center mt-2 text-sm text-gray-500">
                 <MapPin size={14} />
-                <span className="ml-1 truncate">{product.location}</span>
+                <span className="ml-1">{product.location}</span>
               </div>
 
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">{product.category}</span>
+              <div className="mt-2">
                 <span
-                  className={`text-xs px-2 py-1 rounded-full ${
+                  className={`inline-block px-2 py-1 rounded-full text-xs ${
                     product.inStock ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
                   }`}
                 >
@@ -121,32 +119,20 @@ export default function ProductCard({ product, viewMode }: ProductCardProps) {
         </div>
 
         <div className="p-4">
-          <h3 className="font-semibold text-gray-900 truncate mb-1">{product.name}</h3>
-          <p className="text-lg font-bold text-amber-600 mb-2">${product.price.toLocaleString()}</p>
+          <h3 className="font-semibold text-gray-900 truncate">{product.name}</h3>
+          <p className="text-lg font-bold text-amber-600 mt-1">${product.price}</p>
 
-          <div className="flex items-center justify-between mb-2 text-sm text-gray-600">
+          <div className="flex items-center justify-between mt-2 text-sm text-gray-600">
             <div className="flex items-center">
               <Star size={14} className="text-yellow-400 fill-current" />
               <span className="ml-1">{product.seller.rating}</span>
-              <span className="ml-1 text-gray-400">({product.reviews || 0})</span>
             </div>
-            <span className="truncate ml-2 max-w-[100px]">{product.seller.name}</span>
+            <span className="truncate ml-2">{product.seller.name}</span>
           </div>
 
-          <div className="flex items-center mb-2 text-sm text-gray-500">
+          <div className="flex items-center mt-2 text-sm text-gray-500">
             <MapPin size={14} />
             <span className="ml-1 truncate">{product.location}</span>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">{product.category}</span>
-            <span
-              className={`text-xs px-2 py-1 rounded-full ${
-                product.inStock ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-              }`}
-            >
-              {product.inStock ? "In Stock" : "Out of Stock"}
-            </span>
           </div>
         </div>
       </div>

@@ -115,46 +115,33 @@ export default function FeedPost({ post }: FeedPostProps) {
           <div className="flex items-center space-x-6">
             <button
               onClick={handleLike}
-              className={`flex items-center space-x-2 transition-colors ${
-                isLiked ? "text-red-500" : "text-gray-600 hover:text-red-500"
-              }`}
+              className={`flex items-center space-x-2 ${isLiked ? "text-red-500" : "text-gray-600 hover:text-red-500"}`}
             >
               <Heart size={20} fill={isLiked ? "currentColor" : "none"} />
-              <span className="text-sm font-medium">{(post.likes + (isLiked ? 1 : 0)).toLocaleString()}</span>
+              <span className="text-sm">{post.likes + (isLiked ? 1 : 0)}</span>
             </button>
 
             <button
               onClick={() => setShowComments(!showComments)}
-              className="flex items-center space-x-2 text-gray-600 hover:text-blue-500 transition-colors"
+              className="flex items-center space-x-2 text-gray-600 hover:text-blue-500"
             >
               <MessageCircle size={20} />
-              <span className="text-sm font-medium">{post.comments.toLocaleString()}</span>
+              <span className="text-sm">{post.comments}</span>
             </button>
 
-            <button
-              onClick={handleShare}
-              className="flex items-center space-x-2 text-gray-600 hover:text-green-500 transition-colors"
-            >
+            <button onClick={handleShare} className="flex items-center space-x-2 text-gray-600 hover:text-green-500">
               <Share size={20} />
-              <span className="text-sm font-medium">{post.shares.toLocaleString()}</span>
+              <span className="text-sm">{post.shares}</span>
             </button>
           </div>
 
           <button
             onClick={handleSave}
-            className={`transition-colors ${isSaved ? "text-amber-500" : "text-gray-600 hover:text-amber-500"}`}
+            className={`${isSaved ? "text-amber-500" : "text-gray-600 hover:text-amber-500"}`}
           >
             <Bookmark size={20} fill={isSaved ? "currentColor" : "none"} />
           </button>
         </div>
-
-        {/* Engagement Summary */}
-        {post.likes > 0 && (
-          <div className="mt-2 text-sm text-gray-600">
-            <span className="font-medium">{post.likes.toLocaleString()} likes</span>
-            {post.comments > 0 && <span className="ml-2">{post.comments.toLocaleString()} comments</span>}
-          </div>
-        )}
       </div>
 
       {/* Comments Section */}

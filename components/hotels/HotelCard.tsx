@@ -14,7 +14,6 @@ interface HotelCardProps {
     price: number
     amenities: string[]
     description: string
-    reviews: number
   }
 }
 
@@ -53,31 +52,22 @@ export default function HotelCard({ hotel }: HotelCardProps) {
 
           <p className="text-gray-600 text-sm mb-3 line-clamp-2">{hotel.description}</p>
 
-          <div className="flex flex-wrap gap-2 mb-3">
+          <div className="flex items-center space-x-2 mb-3">
             {hotel.amenities.slice(0, 4).map((amenity) => {
               const Icon = amenityIcons[amenity]
               return (
-                <div
-                  key={amenity}
-                  className="flex items-center space-x-1 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full"
-                >
-                  {Icon && <Icon size={12} />}
+                <div key={amenity} className="flex items-center space-x-1 text-xs text-gray-500">
+                  {Icon && <Icon size={14} />}
                   <span>{amenity}</span>
                 </div>
               )
             })}
-            {hotel.amenities.length > 4 && (
-              <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                +{hotel.amenities.length - 4} more
-              </span>
-            )}
           </div>
 
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-2xl font-bold text-gray-900">${hotel.price.toLocaleString()}</span>
+              <span className="text-2xl font-bold text-gray-900">${hotel.price}</span>
               <span className="text-gray-600 text-sm">/night</span>
-              <div className="text-xs text-gray-500 mt-1">{hotel.reviews || 0} reviews</div>
             </div>
             <button className="bg-amber-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-amber-700 transition-colors">
               Book Now
