@@ -14,7 +14,7 @@ const navItems = [
   { href: "/profile", icon: User, label: "Profile" },
 ]
 
-export default function BottomNavigation() {
+export function BottomNavigation() {
   const pathname = usePathname()
 
   return (

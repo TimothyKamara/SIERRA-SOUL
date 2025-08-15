@@ -2,12 +2,16 @@
 
 import { useState } from "react"
 import { Filter, X } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
 
 interface FilterBarProps {
-  onFilter: (filters: any) => void
+  onFiltersChange: (filters: any) => void
 }
 
-export default function FilterBar({ onFilter }: FilterBarProps) {
+export function FilterBar({ onFiltersChange }: FilterBarProps) {
   const [showFilters, setShowFilters] = useState(false)
   const [filters, setFilters] = useState({
     category: "",
@@ -28,7 +32,7 @@ export default function FilterBar({ onFilter }: FilterBarProps) {
   ]
 
   const handleApplyFilters = () => {
-    onFilter(filters)
+    onFiltersChange(filters)
     setShowFilters(false)
   }
 
@@ -41,113 +45,106 @@ export default function FilterBar({ onFilter }: FilterBarProps) {
       inStock: false,
     }
     setFilters(clearedFilters)
-    onFilter(clearedFilters)
+    onFiltersChange(clearedFilters)
   }
 
   return (
-    <div className="relative">
-      <button
-        onClick={() => setShowFilters(!showFilters)}
-        className="flex items-center space-x-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-      >
-        <Filter size={20} />
-        <span>Filters</span>
-      </button>
+    <div className="bg-white border-b p-4">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex items-center justify-between">
+          <Button
+            variant="outline"
+            onClick={() => setShowFilters(!showFilters)}
+            className="flex items-center space-x-2"
+          >
+            <Filter size={16} />
+            <span>Filters</span>
+          </Button>
+        </div>
 
-      {showFilters && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-4">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-gray-900">Filters</h3>
-            <button onClick={() => setShowFilters(false)} className="text-gray-400 hover:text-gray-600">
-              <X size={20} />
-            </button>
-          </div>
-
-          <div className="space-y-4">
-            {/* Category Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-              <select
-                value={filters.category}
-                onChange={(e) => setFilters({ ...filters, category: e.target.value })}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-              >
-                {categories.map((category) => (
-                  <option key={category} value={category === "All Categories" ? "" : category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
+        {showFilters && (
+          <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold text-gray-900">Filter Products</h3>
+              <Button variant="ghost" size="sm" onClick={() => setShowFilters(false)}>
+                <X size={16} />
+              </Button>
             </div>
 
-            {/* Price Range */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {/* Category */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                <Select value={filters.category} onValueChange={(value) => setFilters({ ...filters, category: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((category) => (
+                      <SelectItem key={category} value={category === "All Categories" ? "" : category}>
+                        {category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Price Range */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Min Price</label>
-                <input
+                <Input
                   type="number"
                   value={filters.minPrice}
                   onChange={(e) => setFilters({ ...filters, minPrice: e.target.value })}
                   placeholder="$0"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                 />
               </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Max Price</label>
-                <input
+                <Input
                   type="number"
                   value={filters.maxPrice}
                   onChange={(e) => setFilters({ ...filters, maxPrice: e.target.value })}
                   placeholder="$1000"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Location */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                <Input
+                  value={filters.location}
+                  onChange={(e) => setFilters({ ...filters, location: e.target.value })}
+                  placeholder="Enter location"
                 />
               </div>
             </div>
 
-            {/* Location */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
-              <input
-                type="text"
-                value={filters.location}
-                onChange={(e) => setFilters({ ...filters, location: e.target.value })}
-                placeholder="Enter location"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-              />
-            </div>
-
             {/* In Stock Only */}
-            <div className="flex items-center">
-              <input
-                type="checkbox"
+            <div className="flex items-center space-x-2 mt-4">
+              <Checkbox
                 id="inStock"
                 checked={filters.inStock}
-                onChange={(e) => setFilters({ ...filters, inStock: e.target.checked })}
-                className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded"
+                onCheckedChange={(checked) => setFilters({ ...filters, inStock: !!checked })}
               />
-              <label htmlFor="inStock" className="ml-2 text-sm text-gray-700">
+              <label htmlFor="inStock" className="text-sm text-gray-700">
                 In stock only
               </label>
             </div>
-          </div>
 
-          {/* Action Buttons */}
-          <div className="flex space-x-3 mt-6">
-            <button
-              onClick={handleApplyFilters}
-              className="flex-1 bg-amber-600 text-white py-2 rounded-lg font-semibold hover:bg-amber-700 transition-colors"
-            >
-              Apply Filters
-            </button>
-            <button
-              onClick={handleClearFilters}
-              className="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg font-semibold hover:bg-gray-300 transition-colors"
-            >
-              Clear All
-            </button>
+            {/* Action Buttons */}
+            <div className="flex space-x-3 mt-6">
+              <Button onClick={handleApplyFilters} className="flex-1">
+                Apply Filters
+              </Button>
+              <Button variant="outline" onClick={handleClearFilters} className="flex-1 bg-transparent">
+                Clear All
+              </Button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }

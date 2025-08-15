@@ -2,17 +2,18 @@
 
 import { useState } from "react"
 import { Filter, X } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface TourFiltersProps {
-  onFilter: (filters: any) => void
+  onFiltersChange: (filters: any) => void
 }
 
-export default function TourFilters({ onFilter }: TourFiltersProps) {
+export function TourFilters({ onFiltersChange }: TourFiltersProps) {
   const [showFilters, setShowFilters] = useState(false)
   const [filters, setFilters] = useState({
     type: "",
     duration: "",
-    priceRange: [0, 2000],
     difficulty: "",
   })
 
@@ -21,87 +22,89 @@ export default function TourFilters({ onFilter }: TourFiltersProps) {
   const difficulties = ["All Levels", "Easy", "Moderate", "Challenging", "Expert"]
 
   const handleApplyFilters = () => {
-    onFilter(filters)
+    onFiltersChange(filters)
     setShowFilters(false)
   }
 
   return (
-    <div className="relative">
-      <button
-        onClick={() => setShowFilters(!showFilters)}
-        className="flex items-center space-x-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-      >
-        <Filter size={20} />
-        <span>Filters</span>
-      </button>
+    <div className="bg-white border-b p-4">
+      <div className="max-w-7xl mx-auto">
+        <Button variant="outline" onClick={() => setShowFilters(!showFilters)} className="flex items-center space-x-2">
+          <Filter size={16} />
+          <span>Filters</span>
+        </Button>
 
-      {showFilters && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-4">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-gray-900">Tour Filters</h3>
-            <button onClick={() => setShowFilters(false)} className="text-gray-400 hover:text-gray-600">
-              <X size={20} />
-            </button>
-          </div>
-
-          <div className="space-y-4">
-            {/* Tour Type */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Tour Type</label>
-              <select
-                value={filters.type}
-                onChange={(e) => setFilters({ ...filters, type: e.target.value })}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-              >
-                {tourTypes.map((type) => (
-                  <option key={type} value={type === "All Types" ? "" : type}>
-                    {type}
-                  </option>
-                ))}
-              </select>
+        {showFilters && (
+          <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold text-gray-900">Tour Filters</h3>
+              <Button variant="ghost" size="sm" onClick={() => setShowFilters(false)}>
+                <X size={16} />
+              </Button>
             </div>
 
-            {/* Duration */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Duration</label>
-              <select
-                value={filters.duration}
-                onChange={(e) => setFilters({ ...filters, duration: e.target.value })}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-              >
-                {durations.map((duration) => (
-                  <option key={duration} value={duration === "All Durations" ? "" : duration}>
-                    {duration}
-                  </option>
-                ))}
-              </select>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Tour Type */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Tour Type</label>
+                <Select value={filters.type} onValueChange={(value) => setFilters({ ...filters, type: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {tourTypes.map((type) => (
+                      <SelectItem key={type} value={type === "All Types" ? "" : type}>
+                        {type}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Duration */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Duration</label>
+                <Select value={filters.duration} onValueChange={(value) => setFilters({ ...filters, duration: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select duration" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {durations.map((duration) => (
+                      <SelectItem key={duration} value={duration === "All Durations" ? "" : duration}>
+                        {duration}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Difficulty */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Difficulty Level</label>
+                <Select
+                  value={filters.difficulty}
+                  onValueChange={(value) => setFilters({ ...filters, difficulty: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select difficulty" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {difficulties.map((difficulty) => (
+                      <SelectItem key={difficulty} value={difficulty === "All Levels" ? "" : difficulty}>
+                        {difficulty}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
-            {/* Difficulty */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Difficulty Level</label>
-              <select
-                value={filters.difficulty}
-                onChange={(e) => setFilters({ ...filters, difficulty: e.target.value })}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-              >
-                {difficulties.map((difficulty) => (
-                  <option key={difficulty} value={difficulty === "All Levels" ? "" : difficulty}>
-                    {difficulty}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <button
-              onClick={handleApplyFilters}
-              className="w-full bg-amber-600 text-white py-2 rounded-lg font-semibold hover:bg-amber-700 transition-colors"
-            >
+            <Button onClick={handleApplyFilters} className="mt-4 w-full md:w-auto">
               Apply Filters
-            </button>
+            </Button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }

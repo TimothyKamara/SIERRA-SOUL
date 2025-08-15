@@ -2,112 +2,124 @@
 
 import type React from "react"
 
-import { useState } from "react"
-import Image from "next/image"
-import { ArrowLeft, Send, Paperclip, Smile } from "lucide-react"
-import { mockMessages } from "@/lib/mockData"
+import { useState, useEffect, useRef } from "react"
+import { useApi, useApiMutation } from "@/hooks/useApi"
+import { messagesAPI } from "@/lib/api"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner"
+import { Send } from "lucide-react"
 
 interface ChatWindowProps {
   conversationId: string
-  onBack: () => void
 }
 
-export default function ChatWindow({ conversationId, onBack }: ChatWindowProps) {
-  const [message, setMessage] = useState("")
-  const [messages, setMessages] = useState(mockMessages)
+export function ChatWindow({ conversationId }: ChatWindowProps) {
+  const [newMessage, setNewMessage] = useState("")
+  const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  const handleSendMessage = () => {
-    if (message.trim()) {
-      const newMessage = {
-        id: Date.now().toString(),
-        senderId: "me",
-        content: message,
-        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-        type: "text" as const,
-      }
+  const {
+    data: conversation,
+    loading,
+    error,
+    refetch,
+  } = useApi(() => messagesAPI.getConversation(conversationId), [conversationId])
 
-      setMessages([...messages, newMessage])
-      setMessage("")
+  const { mutate: sendMessage, loading: sending } = useApiMutation((message: string) =>
+    messagesAPI.sendMessage(conversationId, message),
+  )
 
-      // TODO: Send message to backend
-      // Example API call: POST /api/messages
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [conversation?.messages])
+
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newMessage.trim() || sending) return
+
+    const messageText = newMessage
+    setNewMessage("")
+
+    try {
+      await sendMessage(messageText)
+      refetch() // Refresh conversation to get updated messages
+    } catch (error) {
+      console.error("Failed to send message:", error)
+      setNewMessage(messageText) // Restore message on error
     }
   }
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault()
-      handleSendMessage()
-    }
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <LoadingSpinner />
+      </div>
+    )
+  }
+
+  if (error || !conversation) {
+    return <div className="flex items-center justify-center h-full text-red-500">Failed to load conversation</div>
   }
 
   return (
-    <div className="flex flex-col h-full bg-white">
-      {/* Chat Header */}
-      <div className="flex items-center space-x-3 p-4 border-b border-gray-200">
-        <button onClick={onBack} className="md:hidden p-2 text-gray-600 hover:text-gray-900">
-          <ArrowLeft size={20} />
-        </button>
-
-        <div className="relative">
-          <Image src="/placeholder.svg?height=40&width=40" alt="User" width={40} height={40} className="rounded-full" />
-          <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
-        </div>
-
+    <div className="flex flex-col h-full">
+      {/* Header */}
+      <div className="flex items-center space-x-3 p-4 border-b bg-white">
+        <Avatar>
+          <AvatarImage
+            src={conversation.participant.avatar || "/placeholder.svg"}
+            alt={conversation.participant.name}
+          />
+          <AvatarFallback>{conversation.participant.name.charAt(0)}</AvatarFallback>
+        </Avatar>
         <div>
-          <h3 className="font-semibold text-gray-900">Amara Okafor</h3>
-          <p className="text-sm text-green-600">Online</p>
+          <h3 className="font-semibold">{conversation.participant.name}</h3>
+          <p className="text-sm text-gray-500">{conversation.participant.online ? "Online" : "Offline"}</p>
         </div>
       </div>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((msg) => (
-          <div key={msg.id} className={`flex ${msg.senderId === "me" ? "justify-end" : "justify-start"}`}>
+        {conversation.messages?.map((message) => (
+          <div key={message.id} className={`flex ${message.sender.id === "1" ? "justify-end" : "justify-start"}`}>
             <div
               className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                msg.senderId === "me" ? "bg-amber-500 text-white" : "bg-gray-200 text-gray-900"
+                message.sender.id === "1" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-900"
               }`}
             >
-              <p className="text-sm">{msg.content}</p>
-              <p className={`text-xs mt-1 ${msg.senderId === "me" ? "text-amber-100" : "text-gray-500"}`}>
-                {msg.timestamp}
+              <p className="text-sm">{message.content}</p>
+              <p className="text-xs mt-1 opacity-70">
+                {new Date(message.timestamp).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
               </p>
             </div>
           </div>
         ))}
+        <div ref={messagesEndRef} />
       </div>
 
       {/* Message Input */}
-      <div className="p-4 border-t border-gray-200">
-        <div className="flex items-center space-x-3">
-          <button className="p-2 text-gray-400 hover:text-gray-600">
-            <Paperclip size={20} />
-          </button>
-
-          <div className="flex-1 relative">
-            <input
-              type="text"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Type a message..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-            />
-            <button className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
-              <Smile size={20} />
-            </button>
-          </div>
-
-          <button
-            onClick={handleSendMessage}
-            disabled={!message.trim()}
-            className="p-2 bg-amber-500 text-white rounded-full hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Send size={20} />
-          </button>
+      <form onSubmit={handleSendMessage} className="p-4 border-t bg-white">
+        <div className="flex space-x-2">
+          <Input
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            placeholder="Type a message..."
+            disabled={sending}
+            className="flex-1"
+          />
+          <Button type="submit" disabled={!newMessage.trim() || sending}>
+            {sending ? <LoadingSpinner /> : <Send className="w-4 h-4" />}
+          </Button>
         </div>
-      </div>
+      </form>
     </div>
   )
 }

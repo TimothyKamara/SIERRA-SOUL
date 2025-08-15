@@ -7,7 +7,7 @@ import { useNotifications } from "@/contexts/NotificationContext"
 import { Bell, Search, Menu, X } from "lucide-react"
 import NotificationDropdown from "@/components/notifications/NotificationDropdown"
 
-export default function Header() {
+export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [showNotifications, setShowNotifications] = useState(false)
   const { user } = useAuth()
